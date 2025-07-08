@@ -176,7 +176,7 @@ int main() {
             auto inst = FindDevice();
             if (!inst) {
                 if (!waitingShown) {
-                    printf("🔍 Waiting for Apple Silicon Mac...\n");
+                    printf("🔍 Waiting for Intel T2/Apple Silicon Mac...\n");
                     waitingShown = true;
                 }
                 sleep(1);
