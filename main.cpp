@@ -168,7 +168,7 @@ void EnterDFUMode(HPMPluginInstance &inst) {
 }
 
 int main() {
-    printf("DFU Magic Running...\n");
+    printf("Auto DFU Running...\n");
     bool waitingShown = false;
 
     while (true) {
