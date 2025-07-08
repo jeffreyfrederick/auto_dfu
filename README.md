@@ -1,6 +1,6 @@
 # auto_dfu
 
-**auto_dfu** is a macOS tool that automatically triggers DFU (Device Firmware Update) mode on Apple Silicon Macs using the private AppleHPM interface. It communicates directly with the Thunderbolt controller via I2C to send low-level USB-C VDM (Vendor Defined Message) commands.
+**auto_dfu** is a macOS tool that automatically triggers DFU (Device Firmware Update) mode on Apple Silicon/Intel T2 Macs using the private AppleHPM interface. It communicates directly with the Thunderbolt controller via I2C to send low-level USB-C VDM (Vendor Defined Message) commands.
 
 > ⚠️ **Warning:** This tool uses undocumented Apple interfaces and is intended for advanced users familiar with DFU procedures and macOS internals. Use at your own risk.
 
@@ -25,3 +25,4 @@
 - `AppleHPMLib` (a private Apple library — **not provided**)  
 - Root privileges to access IOKit and AppleHPM  
 - C++11-compatible compiler
+- Apple Silicon Mac as host
