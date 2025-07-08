@@ -6,6 +6,8 @@
 
 🙏 Special thanks to macvdmtool for inspiration...and most of the code. :P
 
+https://github.com/AsahiLinux/macvdmtool
+
 ---
 
 ## ✨ Features
