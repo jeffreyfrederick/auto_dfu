@@ -185,7 +185,6 @@ int main() {
 
             waitingShown = false;
 
-            sleep(1);
             printf("🔌 Device detected. Initiating DFU procedure...\n");
             EnterDFUMode(*inst);
 

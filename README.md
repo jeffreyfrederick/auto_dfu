@@ -4,7 +4,7 @@
 
 > ⚠️ **Warning:** This tool uses undocumented Apple interfaces and is intended for advanced users familiar with DFU procedures and macOS internals. Use at your own risk.
 
-🙏 Special thanks to macvdmtool for inspiration.
+🙏 Special thanks to macvdmtool for inspiration...and most of the code. :P
 
 ---
 
