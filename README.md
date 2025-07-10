@@ -24,7 +24,7 @@ https://github.com/AsahiLinux/macvdmtool
 
 - macOS 12.0+  
 - Xcode command line tools  
-- `AppleHPMLib` (a private Apple library — **not provided**)  
+- `AppleHPMLib`
 - Root privileges to access IOKit and AppleHPM  
 - C++11-compatible compiler
 - Apple Silicon Mac as host
