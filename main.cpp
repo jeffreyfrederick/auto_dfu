@@ -10,6 +10,10 @@
 #include <IOKit/IOCFPlugIn.h>
 #include <IOKit/IOMessage.h>
 #include <IOKit/IOKitLib.h>
+#include <termios.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <dirent.h>
 
 struct failure : public std::runtime_error {
     failure(const char *x) : std::runtime_error(x) {}
@@ -167,43 +171,124 @@ void EnterDFUMode(HPMPluginInstance &inst) {
     }
 }
 
+int run_restore(const std::string &ipsw_path) {
+    printf("\U0001F527 Starting restore with cfgutil...\n");
+    std::string cmd = "cfgutil restore '" + ipsw_path + "'";
+    int ret = system(cmd.c_str());
+    if (ret == 0) {
+        printf("\U00002705 Restore completed successfully.\n");
+    } else {
+        printf("\U0000274C Restore failed with code %d.\n", ret);
+    }
+    return ret;
+}
+
+std::string find_single_ipsw(const std::string &folder) {
+    DIR *dir = opendir(folder.c_str());
+    if (!dir) {
+        fprintf(stderr, "Error: Could not open ipsw directory: %s\n", folder.c_str());
+        exit(1);
+    }
+    std::string found;
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        std::string name = entry->d_name;
+        if (name.size() > 5 && name.substr(name.size() - 5) == ".ipsw") {
+            if (!found.empty()) {
+                fprintf(stderr, "Error: More than one .ipsw file found in %s.\n", folder.c_str());
+                closedir(dir);
+                exit(1);
+            }
+            found = folder + "/" + name;
+        }
+    }
+    closedir(dir);
+    if (found.empty()) {
+        fprintf(stderr, "Error: No .ipsw file found in %s.\n", folder.c_str());
+        exit(1);
+    }
+    return found;
+}
+
+void set_nonblocking_terminal(bool enable) {
+    static struct termios oldt;
+    static bool is_set = false;
+    if (enable && !is_set) {
+        struct termios newt;
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
+        is_set = true;
+    } else if (!enable && is_set) {
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        fcntl(STDIN_FILENO, F_SETFL, 0);
+        is_set = false;
+    }
+}
+
 int main() {
     printf("Auto DFU Running...\n");
     bool waitingShown = false;
-
+    const std::string ipsw_path = find_single_ipsw("ipsw");
+    set_nonblocking_terminal(true);
     while (true) {
         try {
             auto inst = FindDevice();
             if (!inst) {
                 if (!waitingShown) {
-                    printf("🔍 Waiting for Intel T2/Apple Silicon Mac...\n");
+                    printf("\U0001F50D Waiting for Intel T2/Apple Silicon Mac...\n");
                     waitingShown = true;
                 }
                 sleep(1);
                 continue;
             }
-
             waitingShown = false;
-
-            printf("🔌 Device detected. Initiating DFU procedure...\n");
+            printf("\U0001F50C Device detected. Initiating DFU procedure...\n");
             EnterDFUMode(*inst);
-
-            printf("🔁 Monitoring for disconnect...\n");
-            for (;;) {
+            printf("\U0001F501 Monitoring for disconnect or restore trigger... (press 'r' to restore)\n");
+            bool restore_requested = false;
+            while (true) {
+                // Check for device disconnect
                 try {
                     auto status = inst->readRegister(0, 0x3f);
                     if (!(status[0] & 1)) break;
                 } catch (...) {
                     break;
                 }
+                // Check for keypress
+                char ch = 0;
+                ssize_t n = read(STDIN_FILENO, &ch, 1);
+                if (n > 0 && (ch == 'r' || ch == 'R')) {
+                    restore_requested = true;
+                    break;
+                }
                 usleep(500000);
             }
-            printf("❎ Device disconnected.\n");
+            if (restore_requested) {
+                run_restore(ipsw_path);
+                printf("\U0001F501 Waiting for device to disconnect after restore...\n");
+                // Wait for disconnect
+                while (true) {
+                    try {
+                        auto status = inst->readRegister(0, 0x3f);
+                        if (!(status[0] & 1)) break;
+                    } catch (...) {
+                        break;
+                    }
+                    usleep(500000);
+                }
+                printf("\U0000274E Device disconnected after restore.\n");
+                printf("\U0001F501 Resuming device monitoring...\n");
+            } else {
+                printf("\U0000274E Device disconnected.\n");
+            }
         } catch (const std::exception &e) {
             fprintf(stderr, "\nError: %s\n", e.what());
             sleep(2);
         }
     }
-
+    set_nonblocking_terminal(false);
     return 0;
 }
