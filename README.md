@@ -4,13 +4,13 @@
 
 > ⚠️ **Warning:** This tool uses undocumented Apple interfaces and is intended for advanced users familiar with DFU procedures and macOS internals. Use at your own risk.
 
-🙏 Special thanks to macvdmtool for inspiration...and most of the code. :P
+Special thanks to macvdmtool for inspiration...and most of the code. :P
 
 https://github.com/AsahiLinux/macvdmtool
 
 ---
 
-## ✨ Features
+## Features
 
 - Detects AppleHPM devices over I2C
 - Automatically enters DBMa mode
@@ -20,7 +20,7 @@ https://github.com/AsahiLinux/macvdmtool
 
 ---
 
-## 🔧 Requirements
+## Requirements
 
 - macOS 12.0+  
 - Xcode command line tools  
