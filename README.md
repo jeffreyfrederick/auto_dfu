@@ -16,7 +16,7 @@ https://github.com/AsahiLinux/macvdmtool
 - Automatically enters DBMa mode
 - Sends DFU VDM commands (`0x56444D73`)
 - Waits for disconnection/re-enumeration
-- Robust retry and stabilization logic
+- Retry and stabilization logic
 
 ## Requirements
 
