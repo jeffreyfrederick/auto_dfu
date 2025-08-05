@@ -18,8 +18,6 @@ https://github.com/AsahiLinux/macvdmtool
 - Waits for disconnection/re-enumeration
 - Robust retry and stabilization logic
 
----
-
 ## Requirements
 
 - macOS 12.0+  
